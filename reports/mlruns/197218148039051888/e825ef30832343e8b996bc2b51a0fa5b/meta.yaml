@@ -1,0 +1,14 @@
+artifact_uri: file:C:/Users/somol/Downloads/sentiment_api_project_standout/reports/mlruns/197218148039051888/e825ef30832343e8b996bc2b51a0fa5b/artifacts
+end_time: 1769250216341
+entry_point_name: ''
+experiment_id: '197218148039051888'
+lifecycle_stage: active
+run_id: e825ef30832343e8b996bc2b51a0fa5b
+run_name: TFIDF_LogReg
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1769250154665
+status: 3
+tags: []
+user_id: somol

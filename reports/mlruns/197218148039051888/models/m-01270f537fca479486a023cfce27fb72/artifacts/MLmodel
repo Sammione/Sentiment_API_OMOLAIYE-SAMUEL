@@ -1,0 +1,22 @@
+artifact_path: file:C:/Users/somol/Downloads/sentiment_api_project_standout/reports/mlruns/197218148039051888/models/m-01270f537fca479486a023cfce27fb72/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.3
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.6.1
+mlflow_version: 3.8.1
+model_id: m-01270f537fca479486a023cfce27fb72
+model_size_bytes: 6159990
+model_uuid: m-01270f537fca479486a023cfce27fb72
+prompts: null
+run_id: e825ef30832343e8b996bc2b51a0fa5b
+utc_time_created: '2026-01-24 10:23:06.462237'

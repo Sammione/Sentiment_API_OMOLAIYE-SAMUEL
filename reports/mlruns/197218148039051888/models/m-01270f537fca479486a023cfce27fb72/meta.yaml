@@ -1,0 +1,10 @@
+artifact_location: file:C:/Users/somol/Downloads/sentiment_api_project_standout/reports/mlruns/197218148039051888/models/m-01270f537fca479486a023cfce27fb72/artifacts
+creation_timestamp: 1769250186346
+experiment_id: '197218148039051888'
+last_updated_timestamp: 1769250216309
+model_id: m-01270f537fca479486a023cfce27fb72
+model_type: null
+name: model
+source_run_id: e825ef30832343e8b996bc2b51a0fa5b
+status: 2
+status_message: null

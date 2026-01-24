@@ -1,0 +1,16 @@
+services:
+  api:
+    build: .
+    environment:
+      - MODEL_TYPE=best
+    ports:
+      - "8000:8000"
+  streamlit:
+    build: .
+    command: ["streamlit", "run", "streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+    environment:
+      - MODEL_TYPE=best
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
