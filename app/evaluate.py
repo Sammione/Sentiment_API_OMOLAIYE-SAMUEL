@@ -9,6 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, classification_report
 
+from .config import settings
+
 @dataclass
 class EvalReport:
     accuracy: float
@@ -35,8 +37,9 @@ def save_report(report: EvalReport, out_json: Path) -> None:
     out_json.write_text(json.dumps(asdict(report), indent=2), encoding="utf-8")
 
 def plot_confusion_matrix(cm: np.ndarray, labels: List[str], out_png: Path) -> None:
+    """Plot and save a confusion matrix."""
     out_png.parent.mkdir(parents=True, exist_ok=True)
-    fig = plt.figure(figsize=(6, 5))
+    fig = plt.figure(figsize=settings.plot_figsize)
     ax = fig.add_subplot(111)
     im = ax.imshow(cm)
     ax.set_title("Confusion Matrix")
@@ -51,7 +54,7 @@ def plot_confusion_matrix(cm: np.ndarray, labels: List[str], out_png: Path) -> N
         for j in range(cm.shape[1]):
             ax.text(j, i, str(int(cm[i, j])), ha="center", va="center")
 
-    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    fig.colorbar(im, ax=ax, fraction=settings.plot_fraction, pad=settings.plot_pad)
     fig.tight_layout()
     fig.savefig(out_png, dpi=160)
     plt.close(fig)

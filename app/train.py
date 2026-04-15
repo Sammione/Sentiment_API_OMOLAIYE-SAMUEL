@@ -49,7 +49,7 @@ def train_baseline() -> Dict[str, float]:
 
         return {"accuracy": report.accuracy, "f1_macro": report.f1_macro}
 
-def train_transformer(epochs: int = 2) -> Dict[str, float]:
+def train_transformer(epochs: int | None = None) -> Dict[str, float]:
     from .models_transformer import train_distilbert, LABELS as T_LABELS
     from .utils_onnx import export_to_onnx
 
@@ -62,6 +62,9 @@ def train_transformer(epochs: int = 2) -> Dict[str, float]:
         X_tr, X_val, y_tr, y_val = train_test_split(
             X_train, y_train, test_size=0.1, random_state=settings.random_seed, stratify=y_train
         )
+
+        # Use config default if epochs not provided
+        epochs = epochs if epochs is not None else settings.transformer_epochs
 
         model, tokenizer, meta = train_distilbert(
             X_tr, y_tr, X_val, y_val,
@@ -80,7 +83,7 @@ def train_transformer(epochs: int = 2) -> Dict[str, float]:
             preds=[]
             probs=[]
             for t in texts:
-                inputs = tokenizer(t, return_tensors="pt", truncation=True, padding=True, max_length=128)
+                inputs = tokenizer(t, return_tensors="pt", truncation=True, padding=True, max_length=settings.transformer_max_length)
                 with torch.no_grad():
                     out = model(**inputs)
                     p = torch.softmax(out.logits, dim=-1).cpu().numpy()[0]
@@ -115,15 +118,11 @@ def train_transformer(epochs: int = 2) -> Dict[str, float]:
         mlflow.log_artifact(settings.reports_dir / "transformer_confusion.png")
         mlflow.log_artifact(str(onnx_path), artifact_path="onnx")
         
-        # Log HF model components
-        components = {
-            "model": model,
-            "tokenizer": tokenizer,
-        }
-        mlflow.transformers.log_model(
-            transformers_model=components,
+        # Log HF model using pytorch flavor
+        mlflow.pytorch.log_model(
+            pytorch_model=model,
             artifact_path="model",
-            task="text-classification"
+            tokenizer=tokenizer,
         )
 
         return {"accuracy": report.accuracy, "f1_macro": report.f1_macro}
@@ -136,11 +135,11 @@ def choose_best(baseline_metrics: Dict[str,float], transformer_metrics: Dict[str
 def main():
     parser = argparse.ArgumentParser(description="Train sentiment models.")
     parser.add_argument("--model", choices=["baseline","transformer","both"], default="both")
-    parser.add_argument("--epochs", type=int, default=2)
+    parser.add_argument("--epochs", type=int, default=None)
     args = parser.parse_args()
 
-    # Set MLflow tracking URI to a local directory
-    mlflow.set_tracking_uri("file:./reports/mlruns")
+    # Set MLflow tracking URI from config
+    mlflow.set_tracking_uri(settings.mlflow_tracking_uri)
     print(f"MLflow tracking URI: {mlflow.get_tracking_uri()}")
 
     settings.reports_dir.mkdir(parents=True, exist_ok=True)

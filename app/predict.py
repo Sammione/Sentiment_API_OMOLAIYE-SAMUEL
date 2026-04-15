@@ -38,6 +38,11 @@ def load_model(model_type: str = "best") -> ModelBundle:
       - baseline: scikit-learn pipeline
       - transformer: HF model folder
       - best: auto-pick best_model.json if available, else transformer if exists, else baseline
+    
+    Raises:
+        FileNotFoundError: If the requested model files are not found.
+        RuntimeError: If transformer dependencies are not available.
+        ValueError: If an unknown model type is provided.
     """
     if model_type == "best":
         best_path = settings.reports_dir / "best_model.json"
@@ -54,6 +59,11 @@ def load_model(model_type: str = "best") -> ModelBundle:
 
     if model_type == "baseline":
         model_path, meta_path = _baseline_paths()
+        if not model_path.exists():
+            raise FileNotFoundError(
+                f"Baseline model not found at {model_path}. "
+                "Please train the model first using: python -m app.train --model baseline"
+            )
         model = joblib.load(model_path)
         version = "baseline-1"
         return ModelBundle(model_type="baseline", model=model, version=version)
@@ -62,6 +72,11 @@ def load_model(model_type: str = "best") -> ModelBundle:
         if torch is None:
             raise RuntimeError("Transformer dependencies not available. Install requirements.txt.")
         model_dir, meta_path = _transformer_paths()
+        if not model_dir.exists():
+            raise FileNotFoundError(
+                f"Transformer model not found at {model_dir}. "
+                "Please train the model first using: python -m app.train --model transformer"
+            )
         tokenizer = AutoTokenizer.from_pretrained(model_dir)
         model = AutoModelForSequenceClassification.from_pretrained(model_dir)
         model.eval()
@@ -80,7 +95,7 @@ def predict_one(bundle: ModelBundle, text: str) -> Tuple[str, float, str]:
 
     # transformer
     import torch
-    inputs = bundle.tokenizer(cleaned, return_tensors="pt", truncation=True, padding=True, max_length=128)
+    inputs = bundle.tokenizer(cleaned, return_tensors="pt", truncation=True, padding=True, max_length=settings.transformer_max_length)
     with torch.no_grad():
         outputs = bundle.model(**inputs)
         probs = torch.softmax(outputs.logits, dim=-1).cpu().numpy()[0]

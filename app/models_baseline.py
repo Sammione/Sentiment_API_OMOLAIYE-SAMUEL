@@ -7,21 +7,24 @@ from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 
-LABELS = ["negative", "neutral", "positive"]  # fixed order for reports
+from .config import settings
+
+# Use labels from config for consistency
+LABELS = list(settings.labels)
 
 def build_baseline_model() -> Pipeline:
-    # Strong baseline: TF-IDF + Logistic Regression (balanced)
+    """Strong baseline: TF-IDF + Logistic Regression (balanced)"""
     return Pipeline(steps=[
         ("tfidf", TfidfVectorizer(
-            ngram_range=(1,2),
-            min_df=2,
-            max_df=0.95,
-            sublinear_tf=True
+            ngram_range=settings.baseline_ngram_range,
+            min_df=settings.baseline_min_df,
+            max_df=settings.baseline_max_df,
+            sublinear_tf=settings.baseline_sublinear_tf
         )),
         ("clf", LogisticRegression(
-            max_iter=2000,
-            class_weight="balanced",
-            n_jobs=None
+            max_iter=settings.baseline_max_iter,
+            class_weight=settings.baseline_class_weight,
+            n_jobs=settings.baseline_n_jobs
         ))
     ])
 

@@ -6,6 +6,8 @@ import requests
 import streamlit as st
 import pandas as pd
 
+from app.config import settings
+
 st.set_page_config(page_title="Sentiment Lab", layout="wide")
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -15,7 +17,7 @@ st.title("Sentiment Lab — Demo + Metrics")
 
 tab1, tab2, tab3 = st.tabs(["Live Demo", "Batch", "Model Report"])
 
-API_URL = st.sidebar.text_input("API URL", value="http://localhost:8000")
+API_URL = st.sidebar.text_input("API URL", value=settings.default_api_url)
 st.sidebar.caption("Run: docker compose up --build")
 
 def call_health():
